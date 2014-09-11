@@ -225,8 +225,12 @@ eval_f a
 
 -- б) Написать функцию, возвращающую текстовую характеристику ("hot", "warm", "cool", "cold")
 -- по заданному значению температуры в градусах Цельсия.
---describeTemperature :: (Double a, Ord a) => a -> String
-describeTemperature = undefined
+describeTemperature :: (Num a, Ord a) => a -> String
+describeTemperature a
+   | a <= 10 = "cold"
+   | a <= 15 = "cool"
+   | a <= 25 = "warm"
+   | otherwise = "hot"
 
 {- 
    в) (*) Дан список температур в градусах Фаренгейта. Вывести для каждого значения
@@ -234,6 +238,7 @@ describeTemperature = undefined
 
   Решение:
 > map (describeTemperature . f2c) [82, 94, 50, 65, 34]
+["hot","hot","cold","warm","cold"]
 
   В этом решении с помощью операции (.) строится композиция (суперпозиция) функций
   и получившаяся функция применяется функцией map к каждому элементу списка.
@@ -242,35 +247,61 @@ describeTemperature = undefined
 -- 7) Рекурсия
 
 -- Пример. Вычислить сумму всех целых чисел от 1 до n (где n >= 1):
+sum_n :: (Num a, Ord a) => a -> a
 sum_n 1 = 1
 sum_n n
   | n > 1 = n + sum_n (n-1)
   | otherwise = error "n should be >= 1"
 
 -- а) Вычислить сумму всех целых чисел от a до b включительно.
-sum_ab = undefined
+sum_ab :: (Num a, Ord a) => a -> a -> a
+sum_ab a b
+  | b > a = b + sum_ab a (b-1)
+  | b < a = error "b should be >= a"
+sum_ab a b = a
 
 {-
    б) Числовая последовательность определяется следующим образом:
       a1 = 1, a2 = 2, a3 = 3, a_k = a_{k−1} + a_{k−2} − 2*a_{k−3}, k = 4, 5, ...
       Вычислить её n-й элемент.
 -}
-eval_a_n = undefined
+eval_a_n :: (Num a, Ord a) => a -> a
+eval_a_n 1 = 1
+eval_a_n 2 = 2
+eval_a_n 3 = 3
+eval_a_n n
+  | (n > 0) && (n < 4) = n
+  | n > 3 = eval_a_n (n - 1) + eval_a_n (n - 2) - 2 * eval_a_n (n - 3)
+  | otherwise = error "n should be positive (> 0)"
 
 -- в) Вычислить, пользуясь рекурсией, n-ю степень числа a (n - целое):
-pow = undefined
+pow :: (Num a1, Num a, Ord a1) => a -> a1 -> a
+pow a 0 = 1
+pow a n
+  | n > 0 = a * pow a (n-1)
+  | otherwise = error "n should be >= 0"
 
 -- г) Пользуясь ранее написанной функцией pow, вычислить сумму: 1^k + 2^k + ... + n^k.
-sum_nk = undefined
+sum_nk :: (Eq a, Num a, Num a1, Ord a1) => a -> a1 -> a
+sum_nk 1 _ = 1
+sum_nk n k = pow n k + sum_nk (n-1) k
 
 -- д) Сумма факториалов чисел от 1 до n.
+sum_fact :: (Num a, Ord a) => a -> a
 sum_fact 1 = 1
-sum_fact n = undefined
+sum_fact n = fact n + sum_fact (n-1)
   where
-    fact n = undefined
+    fact 1 = 1
+    fact n
+      | n > 0 = n * fact (n-1)
+      | otherwise = error "n should be >= 1"
 
 -- е) Количество цифр целого числа
-number_digits = undefined
+number_digits :: (Integral a1, Num a) => a1 -> a
+number_digits n
+  | n >= 10 = 1 + number_digits (div n 10)
+  | n < 0 = 1 + number_digits (div (-n) 10)
+  | (n >= 0) && (n <= 9) = 1
 
 -- ж) Проверить, является ли заданное число простым.
 isPrime = undefined
@@ -285,6 +316,11 @@ isPrime = undefined
   а 1200 и 2000 — являются).
 -}
 
-nDays year = undefined
+nDays year
+  | isLeap year == True = 366
+  | otherwise = 365
   where
-    isLeap = undefined
+    isLeap n
+      | (mod n 100 == 0) && (mod n 400 /= 0) = False
+      | (mod n 4 == 0) = True
+      | otherwise = False

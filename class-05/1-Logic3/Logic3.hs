@@ -73,8 +73,8 @@ and3 = foldl1 (/\)
 or3 = foldl1 (\/)
 
 any3, all3 :: (a -> Logic3) -> [a] -> Logic3
-any3 f = foldl (\y x -> f x) F
-all3 = undefined
+any3 f xs = or3 $ map f xs
+all3 f xs = and3 $ map f xs
 
 
 {-
@@ -83,7 +83,8 @@ all3 = undefined
 -}
 
 excluded_fourth :: Logic3
-excluded_fourth = undefined
+excluded_fourth = all3 f [T, U, F]
+	where f x = x \/ not3 x \/ not3 (not3 x)
 
 -- Должно быть True
 test_excluded_fourth = excluded_fourth == T

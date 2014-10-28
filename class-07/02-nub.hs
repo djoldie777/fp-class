@@ -31,7 +31,9 @@ main = do
   let (n:results) = [
         nub_set $ Set.fromList xs,
         nub_list xs,
+{-
         nub_seq $ Seq.fromList xs,
+-}
         nub_arr $ listArray (1,length xs) xs ]
   mapM_ print results
   when (any (/= n) results) $ putStrLn "Результаты не совпадают!"

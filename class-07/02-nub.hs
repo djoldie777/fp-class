@@ -16,13 +16,13 @@ nub_set :: Set.IntSet -> Int
 nub_set = Set.size
 
 nub_list :: [Int] -> Int
-nub_list = undefined
+nub_list = length . nub
 
 nub_seq :: Seq.Seq a -> Int
 nub_seq = undefined
 
 nub_arr :: Array Int Int -> Int
-nub_arr = undefined
+nub_arr = length . nub . Data.Array.IArray.elems
 
 main = do
   [fname] <- getArgs

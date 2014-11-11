@@ -5,7 +5,8 @@ import System.Environment
 -}
 
 totalLength :: [String] -> Int
-totalLength = undefined
+totalLength = foldl (\s x -> s + length x) 0
+
 
 {-
   Написать функцию, которая по заданному символу и целому числу n строит список строк,
@@ -13,7 +14,10 @@ totalLength = undefined
 -}
 
 build1 :: Char -> Int -> Maybe [String]
-build1 = undefined
+build1 c n
+  | (n > 0) = Just (take n $ iterate (++ [c]) [c])
+  | otherwise = Nothing
+
 
 {-
   Написать функцию, аналогичную по возможностям функции build1, но возвращающую при этом
@@ -25,7 +29,12 @@ build1 = undefined
 -}
 
 build2 :: Char -> Int -> Either String [String]
-build2 = undefined
+build2 c n
+  | (n == 0) = Left "n=0"
+  | (n > 100) = Left "n > 100"
+  | (c == 'x') = Left "Rospotrebnadzor forbids to create 'x' strings"
+  | otherwise = Right (take n $ iterate (++ [c]) [c])
+
 
 {-
   Параметрами командной строки являются имя файла, символ, целое число.
@@ -40,4 +49,10 @@ build2 = undefined
 -}
 
 main = do
-  undefined
+  (fname : c : n : []) <- getArgs
+  length <- fmap totalLength getArgs
+  putStrLn $ "Length of args : " ++ (show length)
+  length <- fmap totalLength $ fmap words $ readFile fname
+  putStrLn $ "Length of text strings : " ++ (show length)
+  putStrLn $ "Length of build1 strings : " ++ (show $ fmap totalLength $ build1 (read c) (read n))
+  putStrLn $ "Length of build2 strings : " ++ (show $ fmap totalLength $ build2 (read c) (read n))

@@ -15,7 +15,7 @@ type SensorData = [SensorValue]
    значений, полученных от датчика. -}
 
 getData :: String -> SensorData
-getData = undefined . lines
+getData s = foldl (\acc x -> if (x /= '-') then acc ++ [Just (read [x])] else acc ++ [Nothing]) []  s
 
 {- Напишите функцию, группирующую данные по суткам. -}
 

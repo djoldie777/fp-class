@@ -9,4 +9,28 @@
    блока do не допускается).
 -}
 
-main = undefined
+import Control.Monad
+import Data.List
+
+data Student = Student { name :: String, age :: Int, group :: String }
+   deriving (Show, Ord, Eq)
+
+
+groupByStudent :: [a] -> [[a]]
+groupByStudent [] = []
+groupByStudent xs = [take 3 xs] ++ (groupByStudent (drop 3 xs))
+
+
+listToStudent :: [String] -> Student
+listToStudent [n, a, c] = Student n (read a) c
+
+
+readFromFile :: FilePath -> IO [Student]
+readFromFile fname = readFile fname >>= (return . (foldl (\acc x -> acc ++ [listToStudent x]) []) . groupByStudent . lines)    
+
+
+writeToFile :: FilePath -> [Student] -> IO ()
+writeToFile fname xs = writeFile fname $ unlines $ map show xs
+
+
+main = (++) `liftM` readFromFile "task1_1.txt" `ap` readFromFile "task1_2.txt" >>= writeToFile "task1_res.txt" . sort

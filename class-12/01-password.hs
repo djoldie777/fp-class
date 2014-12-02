@@ -11,25 +11,33 @@
 import Control.Monad
 import Control.Monad.Trans
 import Control.Monad.Trans.Maybe
+import Control.Monad.Reader
+import Control.Monad.Writer
+import System.Environment
 
 import Data.Char
 
-isValid :: String -> Bool
-isValid s = length s >= 8 && 
-                any isAlpha s && 
-                any isNumber s && 
-                any isPunctuation s
+isValid :: String -> [String] -> Bool
+isValid s (l : symb : d : p : []) = (length s >= read l) && 
+                (if (symb == "T" || symb == "t") then any isAlpha s else True) && 
+                (if (d == "T" || d == "t") then any isNumber s else True) && 
+                (if (p == "T" || p == "t") then any isPunctuation s else True)
 
-getValidPassword :: MaybeT IO String
+getValidPassword :: MaybeT (ReaderT [String] (WriterT [String] IO)) String
 getValidPassword = do
-  lift $ putStrLn "Введите новый пароль:"
-  s <- lift getLine
-  guard (isValid s)
+  restrictions <- ask
+  liftIO $ putStrLn "Введите новый пароль:"
+  s <- liftIO getLine
+  tell [s]
+  guard (isValid s restrictions)
   return s
  
-askPassword :: MaybeT IO ()
+askPassword :: MaybeT (ReaderT [String] (WriterT [String] IO)) ()
 askPassword = do
   value <- msum $ repeat getValidPassword
-  lift $ putStrLn "Сохранение в базе данных..."
+  liftIO $ putStrLn "Сохранение в базе данных..."
 
-main = runMaybeT askPassword
+main = do
+	args <- getArgs
+	pair <- runWriterT (runReaderT (runMaybeT askPassword) args)
+	print $ snd pair

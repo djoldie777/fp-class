@@ -18,13 +18,33 @@ data Scheme = FTP | HTTP | HTTPS | Unk String
               deriving Show
 type Server = String
 type Path = String
-data URL = URL Scheme Server Path
+type Login = String
+type Password = String
+type Port = String
+type Parameters = String
+type Anchor = String
+data URL = URL Scheme Login Password Server Path Parameters Anchor
            deriving Show
 
 scheme = (string "https" >> return HTTPS) <|>
          (string "http" >> return HTTP) <|>
          (string "ftp" >> return FTP) <|>
          Unk `liftM` lowers
+
+
+login :: Parser Login
+login = do
+	l <- many1 (sat (/= ':'))
+	char ':'
+	return l
+
+
+password :: Parser Password
+password = do
+	p <- many1 (sat (/= '@'))
+	char '@'
+	return p
+
 
 url = URL <$>
       scheme <*>

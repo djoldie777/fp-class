@@ -10,8 +10,28 @@ import Control.Monad
    не считать, если в состоянии красиво обойтись с типами и всё корректно
    проанализировать).
 -}
+float :: Parser Float
+float = num <|> fromIntegral <$> integer
+  where
+    num = do
+	n <- integer
+	char '.'
+	m <- natural
+	return $ read (show n ++ "." ++ show m)
 
-data Expr = Con Int | Bin Op Expr Expr
+
+complex :: Parser (Float, Float)
+complex = bracket "(" ")" $ do
+  x <- token float
+  char ','
+  y <- token float
+  return $ (x, y)
+
+
+type Complex = (Float, Float)
+data Number = I Int | F Float | C Complex
+  deriving Show
+data Expr = Con Number | Bin Op Expr Expr
   deriving Show
 data Op = Plus | Minus | Mul | Div
   deriving Show
@@ -37,6 +57,4 @@ expr = token (term >>= rest addop term)
     binop (s1, cons1) (s2, cons2) =
           (symbol s1 >> return cons1) <|>
           (symbol s2 >> return cons2)
-    constant = Con `liftM` natural
-
-
+    constant = Con `liftM` (I `liftM` natural <|> F `liftM` float <|> C `liftM` complex)

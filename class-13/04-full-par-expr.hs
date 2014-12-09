@@ -22,7 +22,7 @@ digit ::=  '0' | '1' | '2' | ... | '9'
 -}
 
 expr :: Parser Expr
-expr = token (constant <|>  bracket "(" ")"  binary)
+expr = token (constant <|>  bracket "(" ")" (binary <|> constant))
   where
     constant = Con `liftM` natural
     binary = do
@@ -32,5 +32,5 @@ expr = token (constant <|>  bracket "(" ")"  binary)
       return $ Bin p e1 e2
     op = (symbol "+" >> return Plus) <|> (symbol "-" >> return Minus)
 
-test =  parse expr "2" == parse expr "(2)" &&
-        parse expr "((2)+3)" == parse expr "(2+3)" 
+test = parse expr "2" == parse expr "(2)" &&
+        parse expr "((2)+3)" == parse expr "(2+3)"
